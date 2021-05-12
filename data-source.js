@@ -39,6 +39,7 @@ const Document = mongoose.model('Document', new mongoose.Schema({
     author: mongoose.Schema.Types.String,
     id: mongoose.Schema.Types.String,
     lastUpdatedDate: mongoose.Schema.Types.Number,
+    access: mongoose.Schema.Types.String,
 }))
 
 const ExternalLink = mongoose.model('ExternalLink', new mongoose.Schema({
@@ -53,24 +54,26 @@ const ExternalLink = mongoose.model('ExternalLink', new mongoose.Schema({
 module.exports.user = {
     async verifyCredential(username, password) {
         const user = await User.findOne({username}).exec()
-        if (!user) {
-            return false;
+        if (!user || user.password !== password) {
+            return null;
         }
-        return user.password === password
+        return {username: user.username, role: user.role}
     },
     async register(rawUser) {
         const user = new User(rawUser)
         await user.save()
+        return {username: user.username, role: user.role}
     }
 }
 
 module.exports.document = {
-    async getAllDocuments() {
-        return Document.find({}).exec()
+    async getAllDocuments(author) {
+        return Document.find({'$or': [{author}, {access: 'public'}]}).exec()
     },
     async addDocument(rawDoc) {
         const doc = new Document(rawDoc)
         await doc.save()
+        return rawDoc
     },
     async modifyDocument(name, id) {
         return Document.findOneAndUpdate({id}, {name}, {new: true}).exec()

@@ -25,8 +25,9 @@ app.post('/api/register', jsonParser, async (req, res) => {
 })
 
 app.get('/api/pdfs', async (req, res) => {
+    const author = req.query.username;
     return res.json({
-        data: await document.getAllDocuments()
+        data: await document.getAllDocuments(author)
     });
 });
 
@@ -34,6 +35,12 @@ app.post('/api/pdf/edit', jsonParser, async (req, res) => {
     const {name, id} = req.body;
     return res.json({
         data: await document.modifyDocument(name, id)
+    });
+});
+
+app.post('/api/pdf/create', jsonParser, async (req, res) => {
+    return res.json({
+        data: await document.addDocument(req.body)
     });
 });
 
