@@ -1,4 +1,4 @@
-const {verifyCredential} = require("./data-source");
+const {document, highlight, user, comment} = require("./data-source");
 const express = require('express')
 const bodyParser = require('body-parser');
 const { v4: uuidv4 } = require('uuid');
@@ -16,38 +16,32 @@ app.get('/', (req, res) => {
 app.post('/api/login', jsonParser, async (req, res) => {
     const username = req.body.username;
     const password = req.body.password;
-    res.json({data: await verifyCredential(username, password)});
+    res.json({data: await user.verifyCredential(username, password)});
 })
 
-app.get('/api/pdf', async (req, res) => {
+app.post('/api/register', jsonParser, async (req, res) => {
+    const {username, password, role} = req.body;
+    res.json({data: await user.register({username, password, role})});
+})
+
+app.get('/api/pdfs', async (req, res) => {
     return res.json({
-        data: {
-            url: 'https://arxiv.org/pdf/1708.08021.pdf',
-            name: 'Test Doc',
-            creationDate: Date.now(),
-            author: 'John Doe',
-            id: `document-${uuidv4().toString()}`,
-            lastUpdatedDate: null,
-        }
+        data: await document.getAllDocuments()
     });
 });
 
 app.post('/api/pdf/edit', jsonParser, async (req, res) => {
-    const name = req.body.name;
+    const {name, id} = req.body;
     return res.json({
-        data: {
-            url: 'https://arxiv.org/pdf/1708.08021.pdf',
-            name,
-            creationDate: Date.now(),
-            author: 'John Doe',
-            id: `document-${uuidv4().toString()}`,
-            lastUpdatedDate: Date.now(),
-        }
+        data: await document.modifyDocument(name, id)
     });
 });
 
-app.get('/api/comments', async (req, res) => {
-
+app.get('/api/highlights', jsonParser, async (req, res) => {
+    const {id} = req.query;
+    return res.json({
+        data: await highlight.getHighlightsByDocumentId(id)
+    })
 });
 
 app.listen(port, () => {
