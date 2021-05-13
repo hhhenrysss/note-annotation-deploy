@@ -16,7 +16,7 @@ const Comment = mongoose.model('Comment', new mongoose.Schema({
     id: mongoose.Schema.Types.String,
     content: mongoose.Schema.Types.String,
     title: mongoose.Schema.Types.String,
-    type: mongoose.Schema.Types.String,
+    access: mongoose.Schema.Types.String,
     replies: [mongoose.Schema.Types.String],
     author: mongoose.Schema.Types.String,
     linkedDocuments: [mongoose.Schema.Types.String],
@@ -25,8 +25,9 @@ const Comment = mongoose.model('Comment', new mongoose.Schema({
 const Highlight = mongoose.model('Highlight', new mongoose.Schema({
     position: mongoose.Schema.Types.Mixed,
     id: mongoose.Schema.Types.String,
-    content: {text: mongoose.Schema.Types.String,},
+    selectedText: {text: mongoose.Schema.Types.String,},
     documentId: mongoose.Schema.Types.String,
+    author: mongoose.Schema.Types.String,
     commentId: mongoose.Schema.Types.String,
     upvotes: mongoose.Schema.Types.Number,
     access: mongoose.Schema.Types.String,
@@ -84,6 +85,7 @@ module.exports.comment = {
     async addComment(rawComment) {
         const comment = new Comment(rawComment)
         await comment.save()
+        return rawComment
     },
     async addReply(rawComment, targetId) {
         const parent = await Comment.findOne({id: targetId})
@@ -94,37 +96,77 @@ module.exports.comment = {
     }
 }
 
+module.exports.externalDocuments = {
+    async addExternalDocument(rawDoc) {
+        const doc = new ExternalLink(rawDoc);
+        await doc.save();
+        return rawDoc
+    }
+}
+
 module.exports.highlight = {
-    async getHighlightsByDocumentId(id) {
-        const highlights = await Highlight.find({documentId: id}).exec();
+    async getHighlightsByDocumentId(id, currentUsername) {
+        const highlights = await Highlight.find({
+            '$or': [{documentId: id, access: 'public'}, {
+                documentId: id,
+                author: currentUsername
+            }]
+        }).exec();
         const comments = {};
         const users = {};
+        const linkedDocuments = {};
+        const linkedExternalResources = {};
         const commentsIdQueue = [];
         for (const highlight of highlights) {
             commentsIdQueue.push(highlight.commentId);
         }
         while (commentsIdQueue.length) {
-            const commentId = commentsIdQueue.pop();
-            const comment = await Comment.findOne({id: commentId}).exec();
-            comments[commentId] = comment
-            for (const repliesId of comment.replies) {
-                if (!(repliesId in comments)) {
-                    commentsIdQueue.push(repliesId);
+            const commentIds = [...commentsIdQueue];
+            commentsIdQueue.length = 0
+            const gatheredComments = await Comment.find({id: {'$in': commentIds}}).exec();
+            for (const c of gatheredComments) {
+                comments[c.id] = c;
+            }
+            for (const c of gatheredComments) {
+                for (const repliesId of c.replies) {
+                    if (!(repliesId in comments)) {
+                        commentsIdQueue.push(repliesId);
+                    }
+                }
+                const documentIds = c.linkedDocuments.filter(l => !((l in linkedDocuments) && (l in linkedExternalResources)))
+                const gatheredDocuments = await Document.find({id: {'$in': documentIds}}).exec();
+                const gatheredExternalLinks = await ExternalLink.find({id: {'$in': documentIds}}).exec();
+                for (const d of gatheredDocuments) {
+                    if (d.id in linkedDocuments) {
+                        continue;
+                    }
+                    linkedDocuments[d.id] = d;
+                }
+                for (const e of gatheredExternalLinks) {
+                    if (e.id in linkedExternalResources) {
+                        continue;
+                    }
+                    linkedExternalResources[e.id] = e;
                 }
             }
         }
+        const authorToGather = new Set()
         for (const comment of Object.values(comments)) {
             if (comment.author in users) {
                 continue;
             }
-            const user = await User.findOne({username: comment.author}).exec();
-            users[user.username] = user.role
+            authorToGather.add(comment.author)
         }
-        return {highlights, comments, users}
+        const gatheredUsers = await User.find({username: {$in: [...authorToGather]}}).exec();
+        for (const u of gatheredUsers) {
+            users[u.username] = u;
+        }
+        return {highlights, comments, users, linkedDocuments, linkedExternalResources}
     },
     async addHighlight(rawHighlight) {
         const highlight = new Highlight(rawHighlight)
         await highlight.save()
+        return rawHighlight
     },
     async upvoteHighlight(id) {
         const highlight = await Highlight.findOne({id}).exec()
