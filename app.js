@@ -47,7 +47,7 @@ app.post('/api/pdf/create', jsonParser, async (req, res) => {
 app.get('/api/highlights', jsonParser, async (req, res) => {
     const {id, username} = req.query;
     return res.json({
-        data: await dataSource.highlight.getHighlightsByDocumentId(id, username)
+        data: await dataSource.document.getAllData(id, username)
     })
 });
 
@@ -63,6 +63,13 @@ app.post('/api/highlight/add', jsonParser, async (req, res) => {
             comment: await dataSource.comment.addComment(comment),
             externalDocs: docs
         }
+    })
+})
+
+app.post('/api/highlight/upvote', jsonParser, async (req, res) => {
+    const {id, isCancel} = req.body;
+    return res.json({
+        data: isCancel ? await dataSource.highlight.cancelUpvoteHighlight(id) : await dataSource.highlight.upvoteHighlight(id)
     })
 })
 
