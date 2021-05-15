@@ -73,6 +73,20 @@ app.post('/api/highlight/upvote', jsonParser, async (req, res) => {
     })
 })
 
+app.post('/api/comment/add', jsonParser, async (req, res) => {
+    const {targetId, comment, externalDocs} = req.body
+    const docs = [];
+    for (const d of externalDocs) {
+        docs.push(await dataSource.externalDocuments.addExternalDocument(d));
+    }
+    return res.json({
+        data: {
+            comment: await dataSource.comment.addReply(comment, targetId),
+            externalDocs: docs
+        }
+    })
+})
+
 app.listen(port, () => {
     console.log(`Example app listening at http://localhost:${port}`)
 })

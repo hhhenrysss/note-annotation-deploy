@@ -131,11 +131,12 @@ module.exports.comment = {
         return rawComment
     },
     async addReply(rawComment, targetId) {
-        const parent = await Comment.findOne({id: targetId})
+        const parent = await Comment.findOne({id: targetId}).exec()
         parent.replies.push(rawComment.id)
-        await parent.save().exec()
+        await parent.save()
         const comment = new Comment(rawComment)
         await comment.save()
+        return rawComment
     },
     async getCommentsByHighlight(highlights, username) {
         const comments = {};
