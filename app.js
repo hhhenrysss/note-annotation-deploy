@@ -87,6 +87,13 @@ app.post('/api/comment/add', jsonParser, async (req, res) => {
     })
 })
 
+app.post('/api/pdf/delete', jsonParser, async (req, res) => {
+    const {id} = req.body;
+    return res.json({
+        data: await dataSource.document.deleteDocument(id)
+    })
+})
+
 app.listen(port, () => {
     console.log(`Example app listening at http://localhost:${port}`)
 })

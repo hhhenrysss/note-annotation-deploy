@@ -94,6 +94,9 @@ module.exports.document = {
     async modifyDocument(name, id) {
         return Document.findOneAndUpdate({id}, {name}, {new: true}).exec()
     },
+    async deleteDocument(id) {
+        return Document.findOneAndDelete({id}).exec()
+    },
     async getLinkedDocumentsByComments(comments, username) {
         const linkedDocuments = {}
         for (const c of comments) {
