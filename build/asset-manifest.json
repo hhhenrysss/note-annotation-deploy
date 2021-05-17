@@ -1,0 +1,28 @@
+{
+  "files": {
+    "main.css": "/static/css/main.8778440c.chunk.css",
+    "main.js": "/static/js/main.ce88f34d.chunk.js",
+    "main.js.map": "/static/js/main.ce88f34d.chunk.js.map",
+    "runtime-main.js": "/static/js/runtime-main.9313d385.js",
+    "runtime-main.js.map": "/static/js/runtime-main.9313d385.js.map",
+    "static/css/2.422a0bce.chunk.css": "/static/css/2.422a0bce.chunk.css",
+    "static/js/2.383697cf.chunk.js": "/static/js/2.383697cf.chunk.js",
+    "static/js/2.383697cf.chunk.js.map": "/static/js/2.383697cf.chunk.js.map",
+    "static/js/3.3e4e2ede.chunk.js": "/static/js/3.3e4e2ede.chunk.js",
+    "static/js/3.3e4e2ede.chunk.js.map": "/static/js/3.3e4e2ede.chunk.js.map",
+    "index.html": "/index.html",
+    "static/css/2.422a0bce.chunk.css.map": "/static/css/2.422a0bce.chunk.css.map",
+    "static/css/main.8778440c.chunk.css.map": "/static/css/main.8778440c.chunk.css.map",
+    "static/js/2.383697cf.chunk.js.LICENSE.txt": "/static/js/2.383697cf.chunk.js.LICENSE.txt",
+    "static/js/pdf.worker.2eb9238b.worker.js": "/static/js/pdf.worker.2eb9238b.worker.js",
+    "static/js/pdf.worker.2eb9238b.worker.js.LICENSE.txt": "/static/js/pdf.worker.2eb9238b.worker.js.LICENSE.txt",
+    "static/js/pdf.worker.2eb9238b.worker.js.map": "/static/js/pdf.worker.2eb9238b.worker.js.map"
+  },
+  "entrypoints": [
+    "static/js/runtime-main.9313d385.js",
+    "static/css/2.422a0bce.chunk.css",
+    "static/js/2.383697cf.chunk.js",
+    "static/css/main.8778440c.chunk.css",
+    "static/js/main.ce88f34d.chunk.js"
+  ]
+}

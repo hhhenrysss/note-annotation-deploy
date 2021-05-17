@@ -1,7 +1,7 @@
 const dataSource = require("./data-source");
 const express = require('express')
 const bodyParser = require('body-parser');
-const { v4: uuidv4 } = require('uuid');
+const path = require('path')
 
 
 const app = express()
@@ -9,8 +9,10 @@ const jsonParser = bodyParser.json();
 
 const port = 3005
 
+app.use(express.static(path.join(__dirname, 'build')));
+
 app.get('/', (req, res) => {
-    res.send('Hello World!')
+    res.sendFile(path.join(__dirname, 'build', 'index.html'));
 })
 
 app.post('/api/login', jsonParser, async (req, res) => {
