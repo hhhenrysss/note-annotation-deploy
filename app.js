@@ -7,7 +7,7 @@ const path = require('path')
 const app = express()
 const jsonParser = bodyParser.json();
 
-const port = 3005
+const port = process.env.PORT || 3005
 
 app.use(express.static(path.join(__dirname, 'build')));
 
