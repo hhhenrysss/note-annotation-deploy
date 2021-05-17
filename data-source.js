@@ -133,6 +133,9 @@ module.exports.comment = {
         await comment.save()
         return rawComment
     },
+    async deleteComment(id) {
+        return Comment.findOneAndDelete({id}).exec()
+    },
     async addReply(rawComment, targetId) {
         const parent = await Comment.findOne({id: targetId}).exec()
         parent.replies.push(rawComment.id)
